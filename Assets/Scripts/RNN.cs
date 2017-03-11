@@ -25,7 +25,7 @@ public class RNN {
 
 		//weights = M.Random (10, 10);
 
-		weights = M.Dense (10, 10, (i, j) => Random.Range (-16f, 16f)); 
+		weights = M.Dense (10, 10, (i, j) => 3); 
 
 		//Init neurons
 		neurons = new Neuron[num_neurons];
@@ -52,7 +52,16 @@ public class RNN {
 		return outputs_arr;
 	}
 
-	public void SetParams(float[,] param_list) {
+	public float[] GetActivities() {
+		float[] activities = new float[num_neurons];
+		for (int i = 0; i < num_neurons; i++) {
+			Neuron n = neurons [i];
+			activities [i] = n.activity;
+		}
+		return activities;
+	}
+		
+	public void SetNeuronParams(float[,] param_list) {
 		for (int i = 0; i < param_list.GetLength(0); i++) {
 			neurons [i].SetParams (param_list [i, 0], param_list [i, 1]);
 		}
