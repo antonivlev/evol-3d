@@ -15,7 +15,7 @@ public class Neuron {
 		activity = 0f;
 		rate = 0f;
 		bias = 3f;
-		t_const = 0.5f;
+		t_const = 0.6f;
 		output = GetOutput();
 	}
 

@@ -38,11 +38,16 @@ public class RNN {
 	}
 
 	public void Update() {
-		Vector<float> sums = weights * outputs;
 		for (int i = 0; i < num_neurons; i++) {
 			Neuron n = neurons [i];
 			outputs [i] = n.GetOutput ();
-			float rate = (-n.activity + sums [i])*1/n.t_const;
+		}
+
+		Vector<float> sums = weights * outputs;
+
+		for (int i = 0; i < num_neurons; i++) {
+			Neuron n = neurons [i];
+			float rate = (-n.activity + sums [i])*(1/n.t_const);
 			n.SetRate (rate);
 		}
 	}

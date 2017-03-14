@@ -20,6 +20,7 @@ public class Main : MonoBehaviour {
 	private HingeJoint 			knee_left;
 
 	private float counter;
+	private float counter_rnn;
 
 	[Range(0.1f, 5f)]
 	public float t0 = 0.5f;
@@ -43,8 +44,8 @@ public class Main : MonoBehaviour {
 		spring_const = 1000;
 		damper = 100;
 		t0 = 0.5f;
-		t1 = 1.5f;
-		t2 = 0.5f;
+		t1 = 0.6f;
+		t2 = 0.6f;
 
 		b0 = 3f;
 		b1 = -2f;
@@ -59,29 +60,34 @@ public class Main : MonoBehaviour {
 
 		Debug.Log (net.weights.ToString ());
 		counter = 0;
-		SetAngles (new float[]{0f, 1f, 0.25f, 0.5f, 0.5f, 0.5f});
+		counter_rnn = 0;
+		//SetAngles (new float[]{0f, 0f, 0.5f, 0.5f, 0.5f, 0.5f});
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-		net.SetNeuronParams (new float[,] {
-			{t0, b0},
-			{t1, b1},
-			{t2, b2}
-		});
-		net.Update ();
-
 		counter += Time.deltaTime;
-		if (counter > 3) {
-			Reset ();
-			counter = 0;
-		}
+		//if (counter > 3) {
+		//	Reset ();
+		//	counter = 0;
+		//}
+
+		counter_rnn += Time.deltaTime;
+		//if (counter_rnn > 0.5) {
+			net.SetNeuronParams (new float[,] {
+				{t0, b0},
+				{t1, b1},
+				{t2, b2}
+			});
+			net.Update ();
+			counter_rnn = 0;
+		//}
 
 		SetAngles (net.GetOutputs());
 
 		//Debugging
 		//System.IO.File.AppendAllText("C:/UnityLogs/logRNN.txt", net.GetOutputs ()[0]+" "+net.GetOutputs ()[1]+" "+net.GetOutputs ()[2]+" "+net.GetOutputs ()[3]+" "+net.GetOutputs ()[4]+" "+net.GetOutputs ()[5]+"\n");
-		//Debug.Log ("net outputs: "+net.GetOutputs ()[0]+" "+net.GetOutputs ()[1]+" "+net.GetOutputs ()[2]+" "+net.GetOutputs ()[3]+" "+net.GetOutputs ()[4]+" "+net.GetOutputs ()[5]);
+		Debug.Log ("net outputs: "+net.GetOutputs ()[0]+" "+net.GetOutputs ()[1]+" "+net.GetOutputs ()[2]+" "+net.GetOutputs ()[3]+" "+net.GetOutputs ()[4]+" "+net.GetOutputs ()[5]);
 
 		//System.IO.File.AppendAllText("C:/UnityLogs/logRNN.txt", net.GetActivities ()[0]+" "+net.GetActivities ()[1]+" "+net.GetActivities ()[2]+" "+net.GetActivities ()[3]+" "+net.GetActivities ()[4]+" "+net.GetActivities ()[5]+"\n");
 		//Debug.Log ("net activities: "+net.GetActivities ()[0]+" "+net.GetActivities ()[1]+" "+net.GetActivities ()[2]+" "+net.GetActivities ()[3]+" "+net.GetActivities ()[4]+" "+net.GetActivities ()[5]);
