@@ -17,15 +17,7 @@ public class RNN {
 
 		num_neurons = 10;
 
-		/*weights = M.DenseOfArray(new float[,]{
-			{10,  1,  3},
-			{1,  10, -2},
-			{3,  -2,  3}
-		});*/
-
-		//weights = M.Random (10, 10);
-
-		weights = M.Dense (10, 10, (i, j) => 3); 
+		weights = M.Dense (num_neurons, num_neurons, (i, j) => 3); 
 
 		//Init neurons
 		neurons = new Neuron[num_neurons];
@@ -34,7 +26,6 @@ public class RNN {
 		}
 
 		outputs = V.DenseOfArray(new float[num_neurons]);
-		Debug.Log ("weights: " + weights.ToString ());
 	}
 
 	public void Update() {

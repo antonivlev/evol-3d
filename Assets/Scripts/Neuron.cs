@@ -14,14 +14,14 @@ public class Neuron {
 	public Neuron() {
 		activity = 0f;
 		rate = 0f;
-		bias = 3f;
-		t_const = 0.6f;
+		bias = Random.Range(-4f, 4f);
+		t_const = Random.Range(0.5f, 5f);
 		output = GetOutput();
 	}
 
 	public void SetRate(float r) {
 		rate = r;
-		activity += rate;
+		activity += rate*Time.deltaTime;
 	}
 
 	public float GetOutput() {

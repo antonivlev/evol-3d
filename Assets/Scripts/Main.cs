@@ -41,6 +41,8 @@ public class Main : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		var M = Matrix<float>.Build;
+
 		spring_const = 1000;
 		damper = 100;
 		t0 = 0.5f;
@@ -57,8 +59,8 @@ public class Main : MonoBehaviour {
 		knee_left = lower_left.GetComponent<HingeJoint> ();
 	
 		net = new RNN ();
-
-		Debug.Log (net.weights.ToString ());
+		net.weights = M.Dense(10, 10, (i, j) => Random.Range(-16f, 16f));
+		Debug.Log ("weights: "+net.weights.ToString ());
 		counter = 0;
 		counter_rnn = 0;
 		//SetAngles (new float[]{0f, 0f, 0.5f, 0.5f, 0.5f, 0.5f});
@@ -73,24 +75,17 @@ public class Main : MonoBehaviour {
 		//}
 
 		counter_rnn += Time.deltaTime;
-		//if (counter_rnn > 0.5) {
-			net.SetNeuronParams (new float[,] {
-				{t0, b0},
-				{t1, b1},
-				{t2, b2}
-			});
-			net.Update ();
-			counter_rnn = 0;
-		//}
+		net.Update ();
+		counter_rnn = 0;
 
 		SetAngles (net.GetOutputs());
 
 		//Debugging
 		//System.IO.File.AppendAllText("C:/UnityLogs/logRNN.txt", net.GetOutputs ()[0]+" "+net.GetOutputs ()[1]+" "+net.GetOutputs ()[2]+" "+net.GetOutputs ()[3]+" "+net.GetOutputs ()[4]+" "+net.GetOutputs ()[5]+"\n");
-		Debug.Log ("net outputs: "+net.GetOutputs ()[0]+" "+net.GetOutputs ()[1]+" "+net.GetOutputs ()[2]+" "+net.GetOutputs ()[3]+" "+net.GetOutputs ()[4]+" "+net.GetOutputs ()[5]);
+		//Debug.Log ("net outputs: "+net.GetOutputs ()[0]+" "+net.GetOutputs ()[1]+" "+net.GetOutputs ()[2]+" "+net.GetOutputs ()[3]+" "+net.GetOutputs ()[4]+" "+net.GetOutputs ()[5]);
 
-		//System.IO.File.AppendAllText("C:/UnityLogs/logRNN.txt", net.GetActivities ()[0]+" "+net.GetActivities ()[1]+" "+net.GetActivities ()[2]+" "+net.GetActivities ()[3]+" "+net.GetActivities ()[4]+" "+net.GetActivities ()[5]+"\n");
-		//Debug.Log ("net activities: "+net.GetActivities ()[0]+" "+net.GetActivities ()[1]+" "+net.GetActivities ()[2]+" "+net.GetActivities ()[3]+" "+net.GetActivities ()[4]+" "+net.GetActivities ()[5]);
+		System.IO.File.AppendAllText("C:/UnityLogs/logRNN.txt", net.GetActivities ()[0]+" "+net.GetActivities ()[1]+" "+net.GetActivities ()[2]+" "+net.GetActivities ()[3]+" "+net.GetActivities ()[4]+" "+net.GetActivities ()[5]+"\n");
+		Debug.Log ("net activities: "+net.GetActivities ()[0]+" "+net.GetActivities ()[1]+" "+net.GetActivities ()[2]+" "+net.GetActivities ()[3]+" "+net.GetActivities ()[4]+" "+net.GetActivities ()[5]);
 	}
 
 	private void SetAngles(float[] net_outputs) {
@@ -111,9 +106,22 @@ public class Main : MonoBehaviour {
 		hip_left.targetRotation = quat_left;
 		knee_right.spring = spring_right;
 		knee_left.spring = spring_left;
+
+		//Debugging
+		/*
+		float a0 = net_outputs [0] * 90;
+		float a1 = net_outputs [1] * 90;
+		float a2 = net_outputs [2] * 90;
+		float a3 = net_outputs [3] * 90 - 45;
+		float a4 = net_outputs [4] * 90 - 45;
+		float a5 = net_outputs [5] * 90 - 45;
+		*/
+		//Debug.Log ("angles: "+a0+" "+a1+" "+a2+" "+a3+" "+a4+" "+a5);		
 	}
 
 	private void Reset() {
+		//Places legs at initial position
+
 		//Set all target angles to zero
 		Quaternion quat = Quaternion.Euler (0, 0, 0);
 		JointSpring spring = new JointSpring ();
