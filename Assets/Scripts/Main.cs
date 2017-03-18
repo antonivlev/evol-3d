@@ -6,8 +6,9 @@ using UnityEngine;
 public class Main : MonoBehaviour {
 	public static int num_neurons = 10;
 
-	public float spring_const = 1000;
-	public float damper = 100;
+	public float spring_const;
+	public float damper;
+
 
 	public GameObject body;
 	public GameObject upper_right;
@@ -28,6 +29,12 @@ public class Main : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		spring_const = 1000;
+		damper = 100;
+
+		System.IO.File.Delete("C:/UnityLogs/best_costs.txt");
+		System.IO.File.Delete("C:/UnityLogs/gen_desc.txt");
+
 		//Assign joint references
 		hip_right = upper_right.GetComponent<ConfigurableJoint> ();
 		knee_right = lower_right.GetComponent<HingeJoint> ();
@@ -39,6 +46,9 @@ public class Main : MonoBehaviour {
 
 		Debug.Log ("weights: "+net.weights.ToString ());
 		counter = 0;
+
+		//SetAngles (new float[]{0f, 0f, 0.5f, 0.5f, 0.5f, 0.5f});
+		//SetAngles (new float[]{0f, 0f, 0f, 0f, 0f, 0f});
 	}
 	
 	// FixedUpdate is called every 0.02s
@@ -47,16 +57,21 @@ public class Main : MonoBehaviour {
 		SetAngles (net.GetOutputs());
 
 		counter += Time.deltaTime;
-		if (counter > 5) {
-			float cost = Evaluate ();
-			net.current_chrom.cost = cost;
+		if (counter > 10) {
+			float dist = Evaluate ();
+			net.current_chrom.dist = dist;
+			net.SetChrom(gen_alg.GetNextChrom ());
+
+			Reset ();
+			counter = 0;
+		} else if (body.transform.position.y < 1.5) {
+			float dist = Evaluate ();
+			net.current_chrom.dist = dist;
 			net.SetChrom(gen_alg.GetNextChrom ());
 
 			Reset ();
 			counter = 0;
 		}
-
-
 
 		//Debugging
 		//System.IO.File.AppendAllText("C:/UnityLogs/logRNN.txt", net.GetOutputs ()[0]+" "+net.GetOutputs ()[1]+" "+net.GetOutputs ()[2]+" "+net.GetOutputs ()[3]+" "+net.GetOutputs ()[4]+" "+net.GetOutputs ()[5]+"\n");
@@ -77,13 +92,21 @@ public class Main : MonoBehaviour {
 		spring_left.damper = damper;
 		spring_left.targetPosition = net_outputs [1] * 90;
 
-		Quaternion quat_right = Quaternion.Euler (net_outputs [2] * 90 - 45, 0, net_outputs [3] * 90 - 45); 
-		Quaternion quat_left = Quaternion.Euler (net_outputs [4] * 90 - 45, 0, net_outputs [5] * 90 - 45);
+		//Debug.Log ("spring_right spring: "+spring_right.spring);
+		//Debug.Log ("spring_left spring: "+spring_left.spring);
+
+		Quaternion quat_right = Quaternion.Euler (net_outputs [2] * 130 - 65, 0, net_outputs [3] * 20 - 10);  
+		Quaternion quat_left = Quaternion.Euler (net_outputs [4] * 130 - 65, 0, net_outputs [5] * 20 - 10);		
+		//Quaternion quat_left = Quaternion.Euler (net_outputs [4] * 90 - 45, 0, net_outputs [5] * 90 - 45);		
+
 
 		hip_right.targetRotation = quat_right;
 		hip_left.targetRotation = quat_left;
 		knee_right.spring = spring_right;
 		knee_left.spring = spring_left;
+
+		//Debug.Log ("knee_right spring: "+knee_right.spring.spring);
+		//Debug.Log ("knee_left spring: "+knee_left.spring.spring);
 
 		//Debugging
 		/*
@@ -144,7 +167,7 @@ public class Main : MonoBehaviour {
 	}
 
 	private float Evaluate() {
-		return 4f;
+		return (new Vector2(body.transform.position.x, body.transform.position.z) - new Vector2(1, 0)).magnitude;
 	}
 }
 

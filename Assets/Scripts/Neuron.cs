@@ -26,6 +26,7 @@ public class Neuron {
 
 	public float GetOutput() {
 		output = 1/(1 + Mathf.Exp (bias - activity)); 
+		output = Mathf.Round (output * 100f) / 100f;
 		return output;
 	}
 

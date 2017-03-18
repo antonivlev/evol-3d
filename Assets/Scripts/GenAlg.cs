@@ -12,35 +12,59 @@ public class GenAlg {
 
 	private int chrom_ind; 
 
+	private int num_mutations;
+
 	public GenAlg() {
+		num_mutations = 0;
+
 		gen_ind = 1;
-		gen_size = 10;
+		gen_size = 120;
 		chrom_ind = 0;
 		gen = new List<Chromosome> ();
+
 		//Fill gen with randomised chromosomes
-		Debug.Log("-----chroms init-------");
 		for (int i = 0; i < gen_size; i++) {
 			Chromosome chr = new Chromosome ();
-			Debug.Log (chr.biases[0]);
 			gen.Add (chr);
 		}
 	}
 
 	public void MakeNewGen() {
 		//all chroms in gen have a cost at this point
+		System.IO.File.AppendAllText("C:/UnityLogs/gen_desc.txt", gen_ind+"-------------------------------"+"\n");
+		gen = gen.OrderByDescending( chrom => chrom.dist ).ToList();
 
-		gen = gen.OrderByDescending( chrom => chrom.cost ).ToList();
-		//Take top half of current generation, duplicate to make new gen
-		gen = gen.Take (gen_size / 2)
-			.Concat (gen.Take (gen_size / 2))
-			.ToList();
-
-		//Mutate new generation
 		foreach (Chromosome chrom in gen) {
-			chrom.Mutate ();
+			System.IO.File.AppendAllText("C:/UnityLogs/gen_desc.txt", chrom.dist+"\n");		
 		}
 			
-		Debug.Log ("gen_ind: "+gen_ind+"  gen_length: " + gen.Count);
+		Debug.Log ("gen: "+gen_ind+"  best cost: "+gen[0].dist+"  total mutations: "+num_mutations);
+		System.IO.File.AppendAllText("C:/UnityLogs/best_costs.txt", gen[0].dist+"\n");
+		//System.IO.File.AppendAllText("C:/UnityLogs/top_chroms.txt", gen[0].ParamsToString+"\n");
+	
+
+		//Take top half of current generation, duplicate to make new gen
+		gen = gen.Take (gen_size / 2).ToList(); 
+
+		List<Chromosome> second_half = new List<Chromosome> ();
+		foreach (Chromosome chr in gen) {
+			second_half.Add (chr.MakeClone ());
+		}
+
+		gen = gen.Concat (second_half).ToList();
+
+		//Mutate new generation
+		num_mutations = 0;
+		foreach (Chromosome chrom in gen) {
+			chrom.Mutate ();
+			num_mutations += chrom.mut_counter;
+		}
+
+		//Prints all chromosomes in generation
+		//string[] gen_str = gen.Select(c => c.ToTheString()).ToArray();
+		//Debug.Log (string.Join("\n", gen_str));
+		//System.IO.File.AppendAllText("C:/UnityLogs/params.txt", string.Join("\n", gen_str)+"\n");
+
 		gen_ind++;
 	}
 
