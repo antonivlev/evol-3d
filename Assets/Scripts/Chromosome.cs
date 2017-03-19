@@ -3,13 +3,14 @@ using MathNet.Numerics.Random;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Chromosome {
 	public float[] weights;
 	public float[] biases;
 	public float[] t_consts;
 
-	public float dist;
+	public float fitness;
 
 	private MathNet.Numerics.Distributions.Normal weights_distr_mut = new Normal(0, 8);
 	private MathNet.Numerics.Distributions.Normal biases_distr_mut = new Normal(0, 1.5);
@@ -28,7 +29,7 @@ public class Chromosome {
 		weights = new float[100];
 		biases = new float[10];
 		t_consts = new float[10];
-		dist = Mathf.Infinity;
+		fitness = 0;
 
 		for (int i = 0; i < 100; i++) {
 			if (i < 10) {
@@ -37,6 +38,15 @@ public class Chromosome {
 			}
 			weights [i] = (float) weights_distr_init.Sample();
 		}
+	}
+
+	public Chromosome(float[] param_list) {
+		mut_counter = 0;
+
+		weights = param_list.Take(100).ToArray();
+		t_consts = param_list.Skip(100).Take(10).ToArray();
+		biases = param_list.Skip(110).ToArray();
+		fitness = 0;
 	}
 
 	public void Mutate() {
@@ -77,23 +87,18 @@ public class Chromosome {
 		}
 	}
 
-	public string ToTheString() {
-		/*return 	"\n\tweights: [" + 	weights [0] + " " + weights [1] + " " + weights [2] + " " + weights [3] + "...]" +
-				"\n\tbiases: [" + 	biases [0] + " " + biases [1] + " " + biases [2] + " " + biases [3] + "...]" +
-				"\n\tt_consts: [" + 	t_consts [0] + " " + t_consts [1] + " " + t_consts [2] + " " + t_consts [3] + "...]";
-		*/
-		string chrom_params = "";
-		for (int i = 100; i < 120; i++) {
+	public string GetParamsString() {
+		string p = "";
+		for (int i = 0; i < 120; i++) {
 			if (i < 100) {
-				chrom_params += weights [i]+",";
+				p += weights [i]+", ";
 			} else if (i < 110) {
-				chrom_params += t_consts [i-100]+",";
+				p += t_consts [i-100]+", ";
 			} else {
-				chrom_params += biases[i-110]+",";
+				p += biases [i - 110]+", ";
 			}					
 		}
-			
-		return chrom_params;
+		return p;
 	}
 
 	public Chromosome MakeClone() {
