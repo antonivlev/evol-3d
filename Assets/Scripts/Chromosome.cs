@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+
 public class Chromosome {
 	public float[] weights;
 	public float[] biases;
@@ -12,18 +13,26 @@ public class Chromosome {
 
 	public float fitness;
 
-	private MathNet.Numerics.Distributions.Normal weights_distr_mut = new Normal(0, 8);
-	private MathNet.Numerics.Distributions.Normal biases_distr_mut = new Normal(0, 1.5);
-	private MathNet.Numerics.Distributions.Normal t_distr_mut = new Normal(0, 3);
+	private MathNet.Numerics.Distributions.Normal weights_distr_mut;
+	private MathNet.Numerics.Distributions.Normal biases_distr_mut;
+	private MathNet.Numerics.Distributions.Normal t_distr_mut;
 
-	private MathNet.Numerics.Distributions.Normal weights_distr_init = new Normal(0, 8);
-	private MathNet.Numerics.Distributions.Normal biases_distr_init = new Normal(2.75, 1.5);
-	private MathNet.Numerics.Distributions.Normal t_distr_init = new Normal(0, 3);
+	private MathNet.Numerics.Distributions.Normal weights_distr_init;
+	private MathNet.Numerics.Distributions.Normal biases_distr_init ;
+	private MathNet.Numerics.Distributions.Normal t_distr_init;
 
 
 	public int mut_counter;
 
 	public Chromosome() {
+		weights_distr_mut = new Normal (0, 8);
+		biases_distr_mut = new Normal (0, 1.5);
+		t_distr_mut = new Normal (0, 3);
+
+		weights_distr_init = new Normal (0, 8);
+		biases_distr_init = new Normal (2.75, 1.5);
+		t_distr_init = new Normal (0, 3);
+
 		mut_counter = 0;
 
 		weights = new float[100];

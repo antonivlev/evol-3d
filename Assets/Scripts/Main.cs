@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
 public class Main : MonoBehaviour {
 	public static int num_neurons;
@@ -68,23 +69,31 @@ public class Main : MonoBehaviour {
 	
 	// FixedUpdate is called every 0.02s
 	void FixedUpdate () {
-		net.Update ();
-		SetAngles (net.GetOutputs());
+		try {
+			net.Update ();
+			SetAngles (net.GetOutputs());
 
 
-		if (gen_alg.gen_ind > 120) {
-			gen_alg = new GenAlg ();
-			run++;
+			if (gen_alg.gen_ind > 120) {
+				gen_alg = new GenAlg ();
+				run++;
+			}
+
+			//Conditions for terminating current chrom simulation
+			counter += Time.deltaTime;
+			if (counter > 40) {
+				GoToNextChrom ();
+			} else if (body.transform.position.y < 1.5) {
+				GoToNextChrom ();
+			} else if (Mathf.Abs (body.transform.rotation.x) > 100) {
+				GoToNextChrom ();
+			} else if (float.IsNaN (body.transform.position.x)) {
+				GoToNextChrom ();		
+			}		
 		}
-
-		//Conditions for terminating current chrom simulation
-		counter += Time.deltaTime;
-		if (counter > 40) {
-			GoToNextChrom ();
-		} else if (body.transform.position.y < 1.5) {
-			GoToNextChrom ();
-		} else if (Mathf.Abs (body.transform.rotation.x) > 100) {
-			GoToNextChrom ();
+		catch (Exception e) {
+			Debug.Log ("error occured man");
+			Debug.Log (e);
 		}
 
 		//Debugging
