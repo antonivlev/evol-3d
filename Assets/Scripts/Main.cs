@@ -37,7 +37,7 @@ public class Main : MonoBehaviour {
 	void Start () {
 		num_neurons = 10;
 		double[] p_list = new double[120]{
-			13.60487, 8.884898, -8.635887, -5.654573, -4.089039, 1.603052, -3.757544, 7.576688, 2.288497, 8.902033, 1.849116, -1.273531, -10.93834, -5.812613, 12.89801, 2.936879, -4.927489, -7.593657, 3.688386, 4.401144, -1.309046, 10.22238, 9.380809, -0.4886758, -1.750314, 3.453045, -1.882296, -10.45676, -0.6135027, -1.93418, 9.891644, -10.07681, 5.790706, -2.206334, -12.8038, -0.8844603, -4.794529, -0.9038593, -14.63157, 1.921247, -5.444273, -3.972237, -4.918005, 2.388006, 2.611881, -7.335958, 13.92663, 3.932114, 10.19557, 11.76798, -0.4599442, -2.06741, 0.3857583, 5.607525, -0.9200727, 2.699193, -8.174809, 1.494416, -2.416601, 7.878998, -3.730548, -13.83968, 9.139459, 9.119887, -11.33674, 4.229909, 5.508394, -0.4803945, 1.334958, 6.528176, 4.298055, 0.2587101, -3.187573, -6.061004, -19.069, -3.963905, 16, -16, 16.95995, 4.851724, 10.29429, -7.411299, 0.1125937, -9.812949, -8.197845, -7.104035, -0.3269861, 0.4837435, -19.32641, 9.625965, -3.08302, 5.559855, 8.386573, -3.750917, -1.91664, -7.606456, 16, 15.31863, -2.583349, 1.674326, -2.697098, 1.051957, 0.4025465, 4.394157, 0.353469, -4.234244, 0.771432, 0.5, 0.5, -2.727707, 5.042959, 4.962371, 2.452196, 3.367581, 2.468332, -0.4287907, 0.9687033, -0.1386612, 0.8735673, 2.024322, 
+			7.513874, -13.31366, -5.891386, 3.89313, -13.35374, -5.470473, -28.48326, -0.8950226, 1.676227, -7.829721, 3.001554, 0.9742008, 6.85763, 12.07218, -1.542749, 6.42987, -6.777609, -12.28891, -11.6297, -3.275043, -0.3349386, 13.02803, -3.171752, 2.909704, 7.935295, 2.154472, 5.825492, 6.763169, 6.5986, 0.846593, 6.619426, 0.1207947, 7.378351, 5.546535, -0.8831579, -3.48157, 2.024852, -5.732147, 16.51345, -11.30504, -4.979899, 0.1936812, -7.330712, -2.363033, -5.555974, -11.48479, 6.027504, -0.5046204, -5.604547, 6.99612, 8.643599, -0.5479781, 1.765478, 12.20771, -14.86998, -10.28358, 1.827907, -1.541205, 8.282341, 14.34195, 0.6747534, 8.42286, -10.29843, -0.5448059, 6.860302, -7.558879, -3.571216, -3.13385, 12.60011, -0.07997914, -4.452103, 1.369113, 7.464754, -8.164039, -4.246214, -7.685563, -1.948951, 15.26882, -5.696559, -1.464601, 1.735656, 13.39631, 12.12768, -10.33641, 1.26995, 6.143419, -3.200521, -6.426282, -4.033798, -9.858385, 3.240334, 5.088798, -8.307716, 4.577082, 9.247719, -4.710557, 11.59537, 1.740587, 1.173246, 5.654369, -0.01115066, 3.742572, 0.01587177, 5.836065, -1.146728, -0.4543813, -0.09580191, -3.896233, -1.911579, 4.912868, -0.4526708, 3.798782, 4.286755, 2.614983, 3.773993, -1.182102, 3.293242, 3.547439, 4.012696, 0.9868906, 
 		};
 		float[] param_list = new float[120]; 
 		for (int i = 0; i < 120; i++) {
@@ -57,8 +57,8 @@ public class Main : MonoBehaviour {
 		knee_left = lower_left.GetComponent<HingeJoint> ();
 
 		gen_alg = new GenAlg ();
-		net = new RNN (gen_alg.GetCurrentChrom()); 
-		//net = new RNN (new Chromosome(param_list)); 
+		//net = new RNN (gen_alg.GetCurrentChrom()); 
+		net = new RNN (new Chromosome(param_list)); 
 
 		Debug.Log ("weights: "+net.weights.ToString ());
 		counter = 0;
@@ -69,33 +69,27 @@ public class Main : MonoBehaviour {
 	
 	// FixedUpdate is called every 0.02s
 	void FixedUpdate () {
-		try {
-			net.Update ();
-			SetAngles (net.GetOutputs());
+		net.Update ();
+		SetAngles (net.GetOutputs());
 
-
-			if (gen_alg.gen_ind > 120) {
-				gen_alg = new GenAlg ();
-				run++;
-			}
-
-			//Conditions for terminating current chrom simulation
-			counter += Time.deltaTime;
-			if (counter > 40) {
-				GoToNextChrom ();
-			} else if (body.transform.position.y < 1.5) {
-				GoToNextChrom ();
-			} else if (Mathf.Abs (body.transform.rotation.x) > 100) {
-				GoToNextChrom ();
-			} else if (float.IsNaN (body.transform.position.x)) {
-				GoToNextChrom ();		
-			}		
-		}
-		catch (Exception e) {
-			Debug.Log ("error occured man");
-			Debug.Log (e);
+		/*
+		if (gen_alg.gen_ind > 120) {
+			gen_alg = new GenAlg ();
+			run++;
 		}
 
+		//Conditions for terminating current chrom simulation
+		counter += Time.deltaTime;
+		if (counter > 40) {
+			GoToNextChrom ();
+		} else if (body.transform.position.y < 1.5) {
+			GoToNextChrom ();
+		} else if (Mathf.Abs (body.transform.rotation.x) > 100) {
+			GoToNextChrom ();
+		} else if (float.IsNaN (body.transform.position.x)) {
+			GoToNextChrom ();		
+		}		
+		*/
 		//Debugging
 		//System.IO.File.AppendAllText("C:/UnityLogs/logRNN.txt", net.GetOutputs ()[0]+" "+net.GetOutputs ()[1]+" "+net.GetOutputs ()[2]+" "+net.GetOutputs ()[3]+" "+net.GetOutputs ()[4]+" "+net.GetOutputs ()[5]+"\n");
 		//Debug.Log ("net outputs: "+net.GetOutputs ()[0]+" "+net.GetOutputs ()[1]+" "+net.GetOutputs ()[2]+" "+net.GetOutputs ()[3]+" "+net.GetOutputs ()[4]+" "+net.GetOutputs ()[5]);
@@ -114,43 +108,49 @@ public class Main : MonoBehaviour {
 	}
 
 	private void SetAngles(float[] net_outputs) {
-		JointSpring spring_right = new JointSpring ();
-		spring_right.spring = spring_const;
-		spring_right.damper = damper;
-		spring_right.targetPosition = net_outputs [0] * 90;
+		try {		
+			JointSpring spring_right = new JointSpring ();
+			spring_right.spring = spring_const;
+			spring_right.damper = damper;
+			spring_right.targetPosition = net_outputs [0] * 90;
 
-		JointSpring spring_left = new JointSpring ();
-		spring_left.spring = spring_const;
-		spring_left.damper = damper;
-		spring_left.targetPosition = net_outputs [1] * 90;
+			JointSpring spring_left = new JointSpring ();
+			spring_left.spring = spring_const;
+			spring_left.damper = damper;
+			spring_left.targetPosition = net_outputs [1] * 90;
 
-		//Debug.Log ("spring_right spring: "+spring_right.spring);
-		//Debug.Log ("spring_left spring: "+spring_left.spring);
+			//Debug.Log ("spring_right spring: "+spring_right.spring);
+			//Debug.Log ("spring_left spring: "+spring_left.spring);
 
-		Quaternion quat_right = Quaternion.Euler (net_outputs [2] * 130 - 65, 0, net_outputs [3] * 20 - 10);  
-		Quaternion quat_left = Quaternion.Euler (net_outputs [4] * 130 - 65, 0, net_outputs [5] * 20 - 10);		
-		//Quaternion quat_left = Quaternion.Euler (net_outputs [4] * 90 - 45, 0, net_outputs [5] * 90 - 45);		
+			Quaternion quat_right = Quaternion.Euler (net_outputs [2] * 130 - 65, 0, net_outputs [3] * 20 - 10);  
+			Quaternion quat_left = Quaternion.Euler (net_outputs [4] * 130 - 65, 0, net_outputs [5] * 20 - 10);		
+			//Quaternion quat_left = Quaternion.Euler (net_outputs [4] * 90 - 45, 0, net_outputs [5] * 90 - 45);		
 
 
-		hip_right.targetRotation = quat_right;
-		hip_left.targetRotation = quat_left;
-		knee_right.spring = spring_right;
-		knee_left.spring = spring_left;
+			hip_right.targetRotation = quat_right;
+			hip_left.targetRotation = quat_left;
+			knee_right.spring = spring_right;
+			knee_left.spring = spring_left;
 
-		//Debug.Log ("knee_right spring: "+knee_right.spring.spring);
-		//Debug.Log ("knee_left spring: "+knee_left.spring.spring);
+			//Debug.Log ("knee_right spring: "+knee_right.spring.spring);
+			//Debug.Log ("knee_left spring: "+knee_left.spring.spring);
 
-		//Debugging
-		/*
-		float a0 = net_outputs [0] * 90;
-		float a1 = net_outputs [1] * 90;
-		float a2 = net_outputs [2] * 90;
-		float a3 = net_outputs [3] * 90 - 45;
-		float a4 = net_outputs [4] * 90 - 45;
-		float a5 = net_outputs [5] * 90 - 45;
+			//Debugging
+			/*
+			float a0 = net_outputs [0] * 90;
+			float a1 = net_outputs [1] * 90;
+			float a2 = net_outputs [2] * 90;
+			float a3 = net_outputs [3] * 90 - 45;
+			float a4 = net_outputs [4] * 90 - 45;
+			float a5 = net_outputs [5] * 90 - 45;
 
-		Debug.Log ("angles: "+a0+" "+a1+" "+a2+" "+a3+" "+a4+" "+a5);		
-		*/
+			Debug.Log ("angles: "+a0+" "+a1+" "+a2+" "+a3+" "+a4+" "+a5);		
+			*/
+		}
+		catch (Exception e) {
+			Debug.Log ("error occured man");
+			Debug.Log (e);
+		}
 	}
 
 	private void Reset() {
